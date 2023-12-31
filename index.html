@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteka</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"> <!--dodanie bootstrap 5 do css-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> <!--dodanie jquery-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> <!--dodanie bootstrap 5 do js-->
+</head>
+<body>
+    <header class="h1 p-5 m-1" style="background-color: lightblue;">Biblioteka</header> <!-- padding o wartości 5 margines o 1-->
+    <div class="row m-1" style="background-color:lightblue;"> <!--m-1 definiuje margines -->
+        <div class="col-sm-6 p-3" style="border: solid 2px darkblue; border-right: solid 1px darkblue;"> <!--col-sm-6 to klasa w bootstrap definiująca szerokość kolumny w systemie małych ekranów p-3 definiuje padding o wielkości 3-->
+            <p>Witaj w <code>bibliotece</code>. W poniższym polu możesz wyszukać autora, tytuł, rodzaj literacki, epokę, gatunek literacki, motyw i temat literacki. Pamiętaj o wpisaniu wartości w formie imie-nazwisko, 1człontytułu-2człontytułu. Wpisuj bez polskich znaków.</p>
+            <p>Co będziesz wyszukiwać? </p>
+            <form>
+                <input type="radio" id="autor" name="coWyszuk" value="autor">
+                <label for="autor">autora</label><br>
+                <input type="radio" id="tytul" name="coWyszuk" value="tytul">
+                <label for="tytul">tytul</label><br>
+                <input type="radio" id="rodzaj" name="coWyszuk" value="rodzaj">
+                <label for="rodzaj">rodzaj literacki</label><br>
+                <input type="radio" id="epoka" name="coWyszuk" value="epoka">
+                <label for="epoka">epokę</label><br>
+                <input type="radio" id="gatunek" name="coWyszuk" value="gatunek">
+                <label for="gatunek">gatunek literacki</label><br>
+                <input type="radio" id="motyw" name="coWyszuk" value="motyw">
+                <label for="motyw">motyw lub temat</label><br>
+            </form>
+
+            <label for="fwysz">Pole wyszukiwania: </label><br>
+            <input type="text" id="fwysz" name="fwysz" value=""><br>
+            <button onclick="wyszukanie()">Szukaj</button>
+
+            <p id="pole"></p>
+        </div>
+        <div class="col-sm-6 p-3" style="border: solid 2px darkblue; border-right: solid 1px darkblue; border-left: solid 1px darkblue;">
+            <p id="pole1"></p>
+        </div>
+    </div>
+    <footer></footer>
+
+    <script>
+        function wyszukanie() {
+            var coWysz = document.getElementById("fwysz").value;
+            var radioB1 = document.getElementById("autor");
+            var radioB2 = document.getElementById("tytul");
+            var radioB3 = document.getElementById("rodzaj");
+            var radioB4 = document.getElementById("epoka");
+            var radioB5 = document.getElementById("gatunek");
+            var radioB6 = document.getElementById("motyw");
+            if(radioB1.checked == true){ //sprawdza czy pole jest nacisniete
+                document.getElementById("pole").innerHTML = "Wyszukujesz autora "+coWysz;
+                wstawianieA();
+            }
+            else if(radioB2.checked == true){
+                document.getElementById("pole").innerHTML = "Wyszukujesz tytuł "+coWysz;
+                wstawianieT();
+            }
+            else if(radioB3.checked == true){
+                document.getElementById("pole").innerHTML = "Wyszukujesz rodzaj "+coWysz;
+                wstawianieR();
+            }
+            else if(radioB4.checked == true){
+                document.getElementById("pole").innerHTML = "Wyszukujesz epokę "+coWysz;
+                wstawianieE();
+            }
+            else if(radioB5.checked == true){
+                document.getElementById("pole").innerHTML = "Wyszukujesz gatunek "+coWysz;
+                wstawianieG();
+            }
+            else if(radioB6.checked == true){
+                document.getElementById("pole").innerHTML = "Wyszukujesz motyw "+coWysz;
+                wstawianieM();
+            }
+            else{
+                document.getElementById("pole").innerHTML = "Nie zaznaczyłeś co wyszukujesz";
+            }
+        }
+
+        function wstawianieA(){
+            var autor = document.getElementById("fwysz").value; //przypisujemy do zmiennej autor wartość wpisaną przez użytkownika w polu o id fwysz
+            const url= `https://wolnelektury.pl/api/authors/${autor}`; //tworzymy adres URL do zasobu API na podstawie wprowadzonego autora
+            fetch(url) //wywołujemy fetch, aby wysłać żądanie do API i pobrać dane
+        .then(res => {
+            if (res.ok) { //sprawdzamy czy odpowiedz jest udana
+                return res.json(); //jesli odpowiedz jest udana zmieniamy format na json
+            } else {
+                throw new Error(`Błąd: ${res.status}`); //jesli odpowiedz nie jest udana wywołujemy kod błędu
+            }
+        })
+        .then(wartosc => {
+            wyswietlA(wartosc); //wywołujemy funkcję wyswietlA() i przekazujemy otrzymane dane
+        })
+        .catch(error => { //obsługa  błedu jeśli wystąpi
+            console.error('Błąd pobierania danych:', error);
+        });
+        }
+
+        function wyswietlA(wartosc) { //funkcja wyswietlająca dane na stronie
+        document.getElementById("pole1").innerHTML = `<p>${JSON.stringify(wartosc)}</p>`; // stringify konwertuje "wartosc" na łańcuch znakowy json + wpisujemy tą wartość w element o id pole1
+        }
+
+        function wstawianieT(){
+            var tytul = document.getElementById("fwysz").value; //to samo co w 83 tylko ze z tytulem
+            const url= `https://wolnelektury.pl/api/books/${tytul}`;
+            fetch(url)
+            .then(res => {
+            if (res.ok) {
+                return res.json();
+            } else {
+                throw new Error(`Błąd: ${res.status}`);
+            }
+        })
+        .then(wartosc => {
+            wyswietlT(wartosc);
+        })
+        .catch(error => {
+            console.error('Błąd pobierania danych:', error);
+        });
+        }
+        function wyswietlT(wartosc) {
+        document.getElementById("pole1").innerHTML = `<p>${JSON.stringify(wartosc)}</p>`;
+        }
+
+        function wstawianieR(){ 
+            var rodzaj = document.getElementById("fwysz").value; //to samo co w 83 tylko ze z rodzajem
+            const url= `https://wolnelektury.pl/api/kinds/${rodzaj}`;
+            fetch(url)
+            .then(res => {
+            if (res.ok) {
+                return res.json();
+            } else {
+                throw new Error(`Błąd: ${res.status}`);
+            }
+        })
+        .then(wartosc => {
+            wyswietlR(wartosc);
+        })
+        .catch(error => {
+            console.error('Błąd pobierania danych:', error);
+        });
+        }
+        function wyswietlR(wartosc) {
+        document.getElementById("pole1").innerHTML = `<p>${JSON.stringify(wartosc)}</p>`;
+        }
+
+        function wstawianieE(){
+            var epoka = document.getElementById("fwysz").value; //to samo co w 83 tylko ze z epoką
+            const url= `https://wolnelektury.pl/api/epochs/${epoka}`;
+            fetch(url)
+            .then(res => {
+            if (res.ok) {
+                return res.json();
+            } else {
+                throw new Error(`Błąd: ${res.status}`);
+            }
+        })
+        .then(wartosc => {
+            wyswietlE(wartosc);
+        })
+        .catch(error => {
+            console.error('Błąd pobierania danych:', error);
+        });
+        }
+        function wyswietlE(wartosc) {
+        document.getElementById("pole1").innerHTML = `<p>${JSON.stringify(wartosc)}</p>`;
+        }
+
+        function wstawianieG(){
+            var gatunek = document.getElementById("fwysz").value; //to samo co w 83 tylko ze z gatunkiem
+            const url= `https://wolnelektury.pl/api/genres/${gatunek}`;
+            fetch(url)
+            .then(res => {
+            if (res.ok) {
+                return res.json();
+            } else {
+                throw new Error(`Błąd: ${res.status}`);
+            }
+        })
+        .then(wartosc => {
+            wyswietlG(wartosc);
+        })
+        .catch(error => {
+            console.error('Błąd pobierania danych:', error);
+        });
+        }
+        function wyswietlG(wartosc) {
+        document.getElementById("pole1").innerHTML = `<p>${JSON.stringify(wartosc)}</p>`;
+        }
+
+        function wstawianieM(){
+            var motyw = document.getElementById("fwysz").value; //to samo co w 83 tylko ze z motywem
+            const url= `https://wolnelektury.pl/api/themes/${motyw}`;
+            fetch(url)
+            .then(res => {
+            if (res.ok) {
+                return res.json();
+            } else {
+                throw new Error(`Błąd: ${res.status}`);
+            }
+        })
+        .then(wartosc => {
+            wyswietlM(wartosc);
+        })
+        .catch(error => {
+            console.error('Błąd pobierania danych:', error);
+        });
+        }
+        function wyswietlM(wartosc) {
+        document.getElementById("pole1").innerHTML = `<p>${JSON.stringify(wartosc)}</p>`;
+        }
+
+    </script>
+
+
+</body>
+</html>
